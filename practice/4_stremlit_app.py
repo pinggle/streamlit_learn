@@ -1,5 +1,7 @@
 # https://30days.streamlit.app/?challenge=Day4
 # download csv data: https://www.kaggle.com/datasets/kenjee/ken-jee-youtube-data/data
+# source code: https://github.com/PlayingNumbers/YT_Dashboard_st
+# 免费发布到公网: https://share.streamlit.io/
 
 import pandas as pd
 import numpy as np

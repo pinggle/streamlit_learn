@@ -5,6 +5,11 @@ Created on Wed Mar 30 11:26:09 2022
 @author: kenne
 """
 
+# https://30days.streamlit.app/?challenge=Day4
+# download csv data: https://www.kaggle.com/datasets/kenjee/ken-jee-youtube-data/data
+# source code: https://github.com/PlayingNumbers/YT_Dashboard_st
+# 免费发布到公网: https://share.streamlit.io/
+
 #import relevant libraries (visualization, dashboard, data manipulation)
 import pandas as pd 
 import numpy as np 
@@ -15,21 +20,30 @@ from datetime import datetime
 
 #Define Functions 
 def style_negative(v, props=''):
-    """ Style negative values in dataframe"""
+    """ 
+        Style negative values in dataframe
+        负数,表格中的数字颜色;
+    """
     try: 
         return props if v < 0 else None
     except:
         pass
     
 def style_positive(v, props=''):
-    """Style positive values in dataframe"""
+    """
+        Style positive values in dataframe
+        正数,表格中的数字颜色;
+    """
     try: 
         return props if v > 0 else None
     except:
         pass    
     
 def audience_simple(country):
-    """Show top represented countries"""
+    """
+        Show top represented countries
+        国家代码
+    """
     if country == 'US':
         return 'USA'
     elif country == 'IN':
@@ -100,12 +114,14 @@ views_cumulative.loc[:,['median_views','80pct_views','20pct_views']] = views_cum
 #Start building Streamlit App
 ###############################################################################
 
-
+# 左侧导航栏定义，采用的是一个下拉列表框selectbox的形式;
 add_sidebar = st.sidebar.selectbox('Aggregate or Individual Video', ('Aggregate Metrics','Individual Video Analysis'))
 
 
 #Show individual metrics 
+# 左侧导航栏为:Aggregate Metrics;
 if add_sidebar == 'Aggregate Metrics':
+    # 写文字到页面;
     st.write("Ken Jee YouTube Aggregated Data")
     
     df_agg_metrics = df_agg[['Video publish time','Views','Likes','Subscribers','Shares','Comments added','RPM(USD)','Average % viewed',
@@ -115,6 +131,7 @@ if add_sidebar == 'Aggregate Metrics':
     metric_medians6mo = df_agg_metrics[df_agg_metrics['Video publish time'] >= metric_date_6mo].median(numeric_only=True)
     metric_medians12mo = df_agg_metrics[df_agg_metrics['Video publish time'] >= metric_date_12mo].median(numeric_only=True)
     
+    # 展示5列数据到页面;
     col1, col2, col3, col4, col5 = st.columns(5)
     columns = [col1, col2, col3, col4, col5]
     
@@ -140,13 +157,18 @@ if add_sidebar == 'Aggregate Metrics':
     for i in df_agg_numeric_lst:
         df_to_pct[i] = '{:.1%}'.format
     
+    # 显示表格数据到页面;
     st.dataframe(df_agg_diff_final.style.hide().applymap(style_negative, props='color:red;').applymap(style_positive, props='color:green;').format(df_to_pct))
     
+# 左侧导航栏为:Individual Video Analysis;
 if add_sidebar == 'Individual Video Analysis':
     videos = tuple(df_agg['Video title'])
+    # 写文字到页面;
     st.write("Individual Video Performance")
+    # 展示一个下拉列表框 selectbox 到页面;
     video_select = st.selectbox('Pick a Video:', videos)
     
+    # 填充下拉列表框清单内容;
     agg_filtered = df_agg[df_agg['Video title'] == video_select]
     agg_sub_filtered = df_agg_sub[df_agg_sub['Video Title'] == video_select]
     agg_sub_filtered['Country'] = agg_sub_filtered['Country Code'].apply(audience_simple)
@@ -154,6 +176,7 @@ if add_sidebar == 'Individual Video Analysis':
     
     fig = px.bar(agg_sub_filtered, x ='Views', y='Is Subscribed', color ='Country', orientation ='h')
     #order axis 
+    # 在页面画图;
     st.plotly_chart(fig)
     
     agg_time_filtered = df_time_diff[df_time_diff['Video Title'] == video_select]
@@ -176,8 +199,9 @@ if add_sidebar == 'Individual Video Analysis':
                         name='Current Video' ,line=dict(color='firebrick',width=8)))
         
     fig2.update_layout(title='View comparison first 30 days',
-                   xaxis_title='Days Since Published',
-                   yaxis_title='Cumulative views')
+                   xaxis_title='Days Since Published', # X轴名称;
+                   yaxis_title='Cumulative views') # Y轴名称;
     
+    # 画一个[View comparison first 30 days]图到页面;
     st.plotly_chart(fig2)
 
